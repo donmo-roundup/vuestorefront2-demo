@@ -212,7 +212,7 @@ export default defineComponent({
   },
   setup() {
     const order = ref(null);
-    const { cart, load, setCart, addItem, removeItem } = useCart();
+    const { cart, load, setCart } = useCart();
     const { make, loading } = useMakeOrder();
     const { app } = useContext();
     const router = useRouter();
@@ -265,7 +265,7 @@ export default defineComponent({
 
     onMounted(() => {
       load().then(() => {
-        const donmo = window.DonmoRoundup({
+        const donmo = (window as any).DonmoRoundup({
           publicKey: process.env.DONMO_PUBLIC_KEY,
           isBackendBased: true,
           language: i18n.locale,

@@ -1,32 +1,37 @@
 <template>
-  <SfTopBar class="topbar">
-    <template #left>
-      <SfButton class="sf-button--text">
-        {{ $t('Help & FAQs') }}
-      </SfButton>
-    </template>
-    <template #center>
-      <p>{{ $t('Download') }}</p>
-      <SfButton class="topbar__button sf-button--text">
-        {{ $t('Find out more') }}
-      </SfButton>
-    </template>
-    <template #right>
-      <CurrencySelector v-if="hasCurrencyToSelect" />
-      <StoreSwitcher v-if="hasStoresToSelect" />
-    </template>
-  </SfTopBar>
+  <div>
+    <div class="donmo-header">
+      <a href="https://donmo.org" target="_blank">Donmo Vue Storefront Demo</a>
+    </div>
+    <SfTopBar class="topbar">
+      <template #left>
+        <SfButton class="sf-button--text">
+          {{ $t("Help & FAQs") }}
+        </SfButton>
+      </template>
+      <template #center>
+        <p>{{ $t("Download") }}</p>
+        <SfButton class="topbar__button sf-button--text">
+          {{ $t("Find out more") }}
+        </SfButton>
+      </template>
+      <template #right>
+        <CurrencySelector v-if="hasCurrencyToSelect" />
+        <StoreSwitcher v-if="hasStoresToSelect" />
+      </template>
+    </SfTopBar>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api';
-import { SfButton, SfTopBar } from '@storefront-ui/vue';
-import { useTopBar } from './useTopBar';
+import { defineComponent } from "@nuxtjs/composition-api";
+import { SfButton, SfTopBar } from "@storefront-ui/vue";
+import { useTopBar } from "./useTopBar";
 
 export default defineComponent({
   components: {
-    CurrencySelector: () => import('../CurrencySelector.vue'),
-    StoreSwitcher: () => import('../StoreSwitcher.vue'),
+    CurrencySelector: () => import("../CurrencySelector.vue"),
+    StoreSwitcher: () => import("../StoreSwitcher.vue"),
     SfTopBar,
     SfButton,
   },
@@ -39,9 +44,17 @@ export default defineComponent({
     };
   },
 });
-
 </script>
+
 <style lang="scss" scoped>
+.donmo-header {
+  background-color: #f6c728;
+  padding: 5px;
+}
+.donmo-header a {
+  color: #005cb3;
+  font-weight: bold;
+}
 .topbar {
   position: relative;
   z-index: 2;

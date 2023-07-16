@@ -5,10 +5,7 @@
     @click:close="closeModal"
   >
     <SfList v-if="availableStores.length > 1">
-      <SfListItem
-        v-for="store in availableStores"
-        :key="store.id"
-      >
+      <SfListItem v-for="store in availableStores" :key="store.id">
         <a
           href="/"
           class="container__store--link"
@@ -26,7 +23,7 @@
             <template #icon>
               <SfImage
                 image-tag="nuxt-img"
-                :src="`/icons/langs/${store.locale}.webp`"
+                :src="`/icons/langs/${store.locale}.svg`"
                 width="20"
                 height="20"
                 alt="Flag"
@@ -43,27 +40,30 @@
         aria-label="Close"
         @click="closeModal"
       >
-        {{ $t('Cancel') }}
+        {{ $t("Cancel") }}
       </SfButton>
     </template>
   </SfBottomModal>
 </template>
 <script lang="ts">
 import {
-  defineComponent, onMounted, computed, PropType,
-} from '@nuxtjs/composition-api';
+  defineComponent,
+  onMounted,
+  computed,
+  PropType,
+} from "@nuxtjs/composition-api";
 import {
   SfButton,
   SfList,
   SfBottomModal,
   SfCharacteristic,
   SfImage,
-} from '@storefront-ui/vue';
-import { StoreConfig } from '~/modules/GraphQL/types';
-import { AvailableStores, useStore } from '~/composables';
+} from "@storefront-ui/vue";
+import { StoreConfig } from "~/modules/GraphQL/types";
+import { AvailableStores, useStore } from "~/composables";
 
 export default defineComponent({
-  name: 'StoresModal',
+  name: "StoresModal",
   components: {
     SfButton,
     SfList,
@@ -78,13 +78,9 @@ export default defineComponent({
       default: (): StoreConfig => ({}),
     },
   },
-  emits: ['closeModal'],
+  emits: ["closeModal"],
   setup() {
-    const {
-      stores,
-      change: changeStore,
-      load: loadStores,
-    } = useStore();
+    const { stores, change: changeStore, load: loadStores } = useStore();
 
     const availableStores = computed<AvailableStores>(() => stores.value ?? []);
 
@@ -100,7 +96,7 @@ export default defineComponent({
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal');
+      this.$emit("closeModal");
     },
   },
 });

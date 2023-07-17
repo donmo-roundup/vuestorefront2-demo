@@ -22,10 +22,7 @@
         class="form__element"
         @change="handleCheckSameAddress($event)"
       />
-      <div
-        v-if="sameAsShipping"
-        class="copy__shipping__addresses"
-      >
+      <div v-if="sameAsShipping" class="copy__shipping__addresses">
         <div class="copy__shipping__address">
           <div class="sf-address">
             <UserAddressDetails
@@ -50,10 +47,7 @@
         :countries="countries"
         @setCurrentAddress="handleSetCurrentAddress($event)"
       />
-      <div
-        v-if="!sameAsShipping && isAddNewAddressFormVisible"
-        class="form"
-      >
+      <div v-if="!sameAsShipping && isAddNewAddressFormVisible" class="form">
         <SfHeading
           v-if="hasSavedBillingAddress"
           v-e2e="'shipping-heading'"
@@ -264,7 +258,7 @@
         type="submit"
         @click="handleAddNewAddressBtnClick"
       >
-        {{ $t('Add new address') }}
+        {{ $t("Add new address") }}
       </SfButton>
       <div class="form">
         <div class="form__action">
@@ -274,13 +268,13 @@
             type="submit"
             :disabled="!canMoveForward"
           >
-            {{ $t('Continue to payment') }}
+            {{ $t("Continue to payment") }}
           </SfButton>
           <nuxt-link
             to="localePath('/checkout/shipping')"
             class="sf-button sf-button--underlined form__back-button smartphone-only"
           >
-            {{ $t('Go back') }}
+            {{ $t("Go back") }}
           </nuxt-link>
         </div>
       </div>
@@ -295,9 +289,9 @@ import {
   SfButton,
   SfSelect,
   SfCheckbox,
-} from '@storefront-ui/vue';
-import { ValidationProvider, ValidationObserver, extend } from 'vee-validate';
-import { required, min, digits } from 'vee-validate/dist/rules';
+} from "@storefront-ui/vue";
+import { ValidationProvider, ValidationObserver, extend } from "vee-validate";
+import { required, min, digits } from "vee-validate/dist/rules";
 import {
   ref,
   computed,
@@ -305,45 +299,48 @@ import {
   useRouter,
   defineComponent,
   useContext,
-} from '@nuxtjs/composition-api';
-import userBillingGetters from '~/modules/customer/getters/userBillingGetters';
-import addressGetter from '~/modules/customer/getters/addressGetter';
-import { useCountrySearch } from '~/composables';
+} from "@nuxtjs/composition-api";
+import userBillingGetters from "~/modules/customer/getters/userBillingGetters";
+import addressGetter from "~/modules/customer/getters/addressGetter";
+import { useCountrySearch } from "~/composables";
 
-import useShipping from '~/modules/checkout/composables/useShipping';
-import useBilling from '~/modules/checkout/composables/useBilling';
-import { useUser } from '~/modules/customer/composables/useUser';
-import { useUserAddress } from '~/modules/customer/composables/useUserAddress';
-import UserAddressDetails from '~/components/UserAddressDetails.vue';
+import useShipping from "~/modules/checkout/composables/useShipping";
+import useBilling from "~/modules/checkout/composables/useBilling";
+import { useUser } from "~/modules/customer/composables/useUser";
+import { useUserAddress } from "~/modules/customer/composables/useUserAddress";
+import UserAddressDetails from "~/components/UserAddressDetails.vue";
 import {
   addressFromApiToForm,
   CheckoutAddressForm,
   findUserAddressIdenticalToSavedCartAddress,
   formatAddressReturnToData,
   getInitialCheckoutAddressForm,
-} from '~/helpers/checkout/address';
-import { mergeItem } from '~/helpers/asyncLocalStorage';
-import { isPreviousStepValid } from '~/helpers/checkout/steps';
+} from "~/helpers/checkout/address";
+import { mergeItem } from "~/helpers/asyncLocalStorage";
+import { isPreviousStepValid } from "~/helpers/checkout/steps";
 
 import type {
-  ShippingCartAddress, Country, Customer, CustomerAddress,
-} from '~/modules/GraphQL/types';
+  ShippingCartAddress,
+  Country,
+  Customer,
+  CustomerAddress,
+} from "~/modules/GraphQL/types";
 
-extend('required', {
+extend("required", {
   ...required,
-  message: 'This field is required',
+  message: "This field is required",
 });
-extend('min', {
+extend("min", {
   ...min,
-  message: 'The field should have at least {length} characters',
+  message: "The field should have at least {length} characters",
 });
-extend('digits', {
+extend("digits", {
   ...digits,
-  message: 'Please provide a valid phone number',
+  message: "Please provide a valid phone number",
 });
 
 export default defineComponent({
-  name: 'BillingStep',
+  name: "BillingStep",
   components: {
     SfHeading,
     SfInput,
@@ -352,7 +349,8 @@ export default defineComponent({
     SfCheckbox,
     ValidationProvider,
     ValidationObserver,
-    UserBillingAddresses: () => import('~/modules/checkout/components/UserBillingAddresses.vue'),
+    UserBillingAddresses: () =>
+      import("~/modules/checkout/components/UserBillingAddresses.vue"),
     UserAddressDetails,
   },
   setup() {
@@ -361,32 +359,28 @@ export default defineComponent({
     const shippingDetails = ref<ShippingCartAddress | null>(null);
     const userBilling = ref<Customer | null>(null);
 
-    const {
-      save, load: loadBilling, loading,
-    } = useBilling();
-    const {
-      load: loadUserBilling,
-      setDefaultAddress,
-    } = useUserAddress();
-    const {
-      load: loadShipping,
-    } = useShipping();
-    const {
-      load: loadCountries,
-      search: searchCountry,
-    } = useCountrySearch();
+    const { save, load: loadBilling, loading } = useBilling();
+    const { load: loadUserBilling, setDefaultAddress } = useUserAddress();
+    const { load: loadShipping } = useShipping();
+    const { load: loadCountries, search: searchCountry } = useCountrySearch();
 
     const countries = ref<Country[]>([]);
     const country = ref<Country | null>(null);
 
-    const shippingDetailsCountryName = computed(() => countries
-      .value
-      .find((countryItem) => countryItem.id === shippingDetails.value?.country.code)?.full_name_locale ?? '');
+    const shippingDetailsCountryName = computed(
+      () =>
+        countries.value.find(
+          (countryItem) =>
+            countryItem.id === shippingDetails.value?.country.code
+        )?.full_name_locale ?? ""
+    );
 
     const { isAuthenticated } = useUser();
-    let oldBilling : CheckoutAddressForm | null = null;
-    const sameAsShipping = ref(false);
-    const billingDetails = ref<CheckoutAddressForm>(getInitialCheckoutAddressForm());
+    let oldBilling: CheckoutAddressForm | null = null;
+    const sameAsShipping = ref(true);
+    const billingDetails = ref<CheckoutAddressForm>(
+      getInitialCheckoutAddressForm()
+    );
 
     const currentAddressId = ref<number | null>(null);
     const setAsDefault = ref(false);
@@ -394,11 +388,18 @@ export default defineComponent({
     const isAddNewAddressFormVisible = ref(true);
 
     const isBillingDetailsStepCompleted = ref(false);
-    const addresses = computed(() => (userBilling.value ? userBillingGetters.getAddresses(userBilling.value) : []));
+    const addresses = computed(() =>
+      userBilling.value
+        ? userBillingGetters.getAddresses(userBilling.value)
+        : []
+    );
 
-    const canMoveForward = computed(() => !loading.value && billingDetails.value && Object.keys(
-      billingDetails.value,
-    ).length > 0);
+    const canMoveForward = computed(
+      () =>
+        !loading.value &&
+        billingDetails.value &&
+        Object.keys(billingDetails.value).length > 0
+    );
 
     const hasSavedBillingAddress = computed(() => {
       if (!isAuthenticated.value || !userBilling.value) {
@@ -407,8 +408,12 @@ export default defineComponent({
       return addresses.value.length > 0;
     });
 
-    const countriesList = computed(() => addressGetter.countriesList(countries.value));
-    const regionInformation = computed(() => addressGetter.regionList(country.value));
+    const countriesList = computed(() =>
+      addressGetter.countriesList(countries.value)
+    );
+    const regionInformation = computed(() =>
+      addressGetter.regionList(country.value)
+    );
 
     const handleAddressSubmit = (reset: () => void) => async () => {
       const addressId = currentAddressId.value;
@@ -424,7 +429,7 @@ export default defineComponent({
       if (addressId !== null && setAsDefault.value) {
         const [chosenAddress] = userBillingGetters.getAddresses(
           userBilling.value,
-          { id: addressId },
+          { id: addressId }
         );
         chosenAddress.default_billing = setAsDefault.value;
         if (chosenAddress) {
@@ -433,8 +438,8 @@ export default defineComponent({
         }
       }
       reset();
-      await mergeItem('checkout', { billing: billingDetailsData });
-      await router.push(app.localeRoute({ name: 'payment' }));
+      await mergeItem("checkout", { billing: billingDetailsData });
+      await router.push(app.localeRoute({ name: "payment" }));
       isBillingDetailsStepCompleted.value = true;
     };
 
@@ -442,7 +447,9 @@ export default defineComponent({
       sameAsShipping.value = value;
       if (value) {
         shippingDetails.value = await loadShipping();
-        country.value = await searchCountry({ id: (shippingDetails.value).country.code });
+        country.value = await searchCountry({
+          id: shippingDetails.value.country.code,
+        });
         oldBilling = { ...billingDetails.value };
         billingDetails.value = {
           ...formatAddressReturnToData(shippingDetails.value),
@@ -450,13 +457,17 @@ export default defineComponent({
         currentAddressId.value = null;
         setAsDefault.value = false;
         if (billingDetails.value.country_code) {
-          country.value = await searchCountry({ id: billingDetails?.value.country_code });
+          country.value = await searchCountry({
+            id: billingDetails?.value.country_code,
+          });
         }
         return;
       }
-      billingDetails.value = oldBilling;
+      // billingDetails.value = oldBilling;
       if (billingDetails.value.country_code) {
-        country.value = await searchCountry({ id: billingDetails?.value.country_code });
+        country.value = await searchCountry({
+          id: billingDetails?.value.country_code,
+        });
       }
     };
 
@@ -467,56 +478,71 @@ export default defineComponent({
       isBillingDetailsStepCompleted.value = false;
     };
 
-    const handleSetCurrentAddress = async (customerAddress: CustomerAddress) => {
+    const handleSetCurrentAddress = async (
+      customerAddress: CustomerAddress
+    ) => {
       const id = customerAddress?.id;
       currentAddressId.value = id;
       if (id) {
         isAddNewAddressFormVisible.value = false;
       }
       billingDetails.value = addressFromApiToForm(customerAddress);
-      country.value = customerAddress.country_code ? await searchCountry({ id: customerAddress.country_code }) : null;
+      country.value = customerAddress.country_code
+        ? await searchCountry({ id: customerAddress.country_code })
+        : null;
       isBillingDetailsStepCompleted.value = false;
     };
 
-    const changeBillingDetails = (field: keyof CheckoutAddressForm, value: string) => {
+    const changeBillingDetails = (
+      field: keyof CheckoutAddressForm,
+      value: string
+    ) => {
       billingDetails.value[field] = value;
       currentAddressId.value = null;
       isBillingDetailsStepCompleted.value = false;
     };
 
     const changeCountry = async (id: string) => {
-      changeBillingDetails('country_code', id);
+      changeBillingDetails("country_code", id);
       const newCountry = await searchCountry({ id });
-      billingDetails.value.region = '';
+      billingDetails.value.region = "";
       country.value = newCountry;
     };
 
     onMounted(async () => {
-      const validStep = await isPreviousStepValid('user-account');
+      const validStep = await isPreviousStepValid("user-account");
       if (!validStep) {
-        await router.push(app.localeRoute({ name: 'user-account' }));
+        await router.push(app.localeRoute({ name: "user-account" }));
       }
-      const [loadedBillingInfoBoundToCart, loadedUserBilling, loadedCountries] = await Promise.all([
-        loadBilling(),
-        loadUserBilling(),
-        loadCountries(),
-      ]);
-      const [defaultAddress = null] = userBillingGetters.getAddresses(loadedUserBilling, { default_billing: true });
-      const wasBillingAddressAlreadySetOnCart = Boolean(loadedBillingInfoBoundToCart);
+      const [loadedBillingInfoBoundToCart, loadedUserBilling, loadedCountries] =
+        await Promise.all([loadBilling(), loadUserBilling(), loadCountries()]);
+      const [defaultAddress = null] = userBillingGetters.getAddresses(
+        loadedUserBilling,
+        { default_billing: true }
+      );
+      const wasBillingAddressAlreadySetOnCart = Boolean(
+        loadedBillingInfoBoundToCart
+      );
 
       // keep in mind default billing address is set on a customer's cart during cart creation
       if (wasBillingAddressAlreadySetOnCart) {
-        const userAddressIdenticalToSavedCartAddress = findUserAddressIdenticalToSavedCartAddress(
-          loadedUserBilling?.addresses,
-          loadedBillingInfoBoundToCart,
-        );
+        const userAddressIdenticalToSavedCartAddress =
+          findUserAddressIdenticalToSavedCartAddress(
+            loadedUserBilling?.addresses,
+            loadedBillingInfoBoundToCart
+          );
 
-        handleSetCurrentAddress({ ...loadedBillingInfoBoundToCart, id: userAddressIdenticalToSavedCartAddress?.id });
+        handleSetCurrentAddress({
+          ...loadedBillingInfoBoundToCart,
+          id: userAddressIdenticalToSavedCartAddress?.id,
+        });
       } else if (defaultAddress) {
         handleSetCurrentAddress(defaultAddress);
       }
       if (billingDetails.value?.country_code) {
-        country.value = await searchCountry({ id: billingDetails.value.country_code });
+        country.value = await searchCountry({
+          id: billingDetails.value.country_code,
+        });
       }
       userBilling.value = loadedUserBilling;
       countries.value = loadedCountries;
@@ -663,9 +689,9 @@ export default defineComponent({
   }
 }
 
-.title, .form-subtitle {
+.title,
+.form-subtitle {
   margin: var(--spacer-xl) 0 var(--spacer-base) 0;
-
 }
 
 .form-subtitle {

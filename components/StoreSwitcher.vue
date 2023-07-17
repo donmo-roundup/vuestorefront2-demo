@@ -54,7 +54,6 @@ export default defineComponent({
 
     const isLangModalOpen = ref(false);
 
-    console.log("config locale", config.value.locale);
     return {
       isLangModalOpen,
       storeConfig: config,

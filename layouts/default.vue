@@ -3,10 +3,7 @@
     <IconSprite />
     <CartSidebar v-if="isCartSidebarOpen" />
     <WishlistSidebar v-if="isWishlistSidebarOpen" />
-    <LoginModal
-      v-if="isLoginModalOpen"
-      @close="toggleLoginModal"
-    />
+    <LoginModal v-if="isLoginModalOpen" @close="toggleLoginModal" />
     <LazyHydrate when-visible>
       <Notification />
     </LazyHydrate>
@@ -22,17 +19,24 @@
   </div>
 </template>
 <script lang="ts">
-import LazyHydrate from 'vue-lazy-hydration';
-import { useRoute, defineComponent } from '@nuxtjs/composition-api';
-import { useUiState } from '~/composables';
-import AppHeader from '~/components/AppHeader.vue';
-import BottomNavigation from '~/components/BottomNavigation.vue';
-import IconSprite from '~/components/General/IconSprite.vue';
-import LoadWhenVisible from '~/components/utils/LoadWhenVisible.vue';
-import TopBar from '~/components/TopBar/TopBar.vue';
+import LazyHydrate from "vue-lazy-hydration";
+import { useRoute, defineComponent, onMounted } from "@nuxtjs/composition-api";
+import { useUiState } from "~/composables";
+import AppHeader from "~/components/AppHeader.vue";
+import BottomNavigation from "~/components/BottomNavigation.vue";
+import IconSprite from "~/components/General/IconSprite.vue";
+import LoadWhenVisible from "~/components/utils/LoadWhenVisible.vue";
+import TopBar from "~/components/TopBar/TopBar.vue";
+
+import { Product } from "~/modules/catalog/product/types";
+import { useProduct } from "~/modules/catalog/product/composables/useProduct";
+import useCart from "~/modules/checkout/composables/useCart";
+import useShipping from "~/modules/checkout/composables/useShipping";
+import useShippingProvider from "~/modules/checkout/composables/useShippingProvider";
+import useBilling from "~/modules/checkout/composables/useBilling";
 
 export default defineComponent({
-  name: 'DefaultLayout',
+  name: "DefaultLayout",
 
   components: {
     LoadWhenVisible,
@@ -41,17 +45,107 @@ export default defineComponent({
     BottomNavigation,
     IconSprite,
     TopBar,
-    AppFooter: () => import(/* webpackPrefetch: true */ '~/components/AppFooter.vue'),
-    CartSidebar: () => import(/* webpackPrefetch: true */ '~/modules/checkout/components/CartSidebar.vue'),
-    WishlistSidebar: () => import(/* webpackPrefetch: true */ '~/modules/wishlist/components/WishlistSidebar.vue'),
-    LoginModal: () => import(/* webpackPrefetch: true */ '~/modules/customer/components/LoginModal/LoginModal.vue'),
-    Notification: () => import(/* webpackPrefetch: true */ '~/components/Notification.vue'),
+    AppFooter: () =>
+      import(/* webpackPrefetch: true */ "~/components/AppFooter.vue"),
+    CartSidebar: () =>
+      import(
+        /* webpackPrefetch: true */ "~/modules/checkout/components/CartSidebar.vue"
+      ),
+    WishlistSidebar: () =>
+      import(
+        /* webpackPrefetch: true */ "~/modules/wishlist/components/WishlistSidebar.vue"
+      ),
+    LoginModal: () =>
+      import(
+        /* webpackPrefetch: true */ "~/modules/customer/components/LoginModal/LoginModal.vue"
+      ),
+    Notification: () =>
+      import(/* webpackPrefetch: true */ "~/components/Notification.vue"),
   },
 
   setup() {
+    onMounted(async () => {
+      const { getProductDetails } = useProduct();
+      const { addItem, cart, loadTotalQty } = useCart();
+
+      const { save: saveShipping } = useShipping();
+
+      const { save: saveBilling } = useBilling();
+
+      const { save: saveShippingProvider } = useShippingProvider();
+
+      await loadTotalQty();
+
+      const shippingDetails = {
+        firstname: "Vanessa",
+        lastname: "Lombardi",
+        city: "San Diego",
+        street: "123 Kettner Boulevard",
+        postcode: "12345",
+        company: "Alpha Company",
+        telephone: "1234567890",
+        country_code: "US",
+        apartment: "12",
+        region_id: "12",
+      };
+      if (!cart.value?.total_quantity) {
+        const result = await getProductDetails({
+          filter: {
+            sku: {
+              eq: "24-MB01",
+            },
+          },
+        });
+
+        const product = result.items[0] as Product;
+
+        await addItem({ product, quantity: 1 });
+
+        await saveShipping({
+          shippingDetails,
+        });
+
+        await saveShippingProvider({
+          shippingMethod: {
+            carrier_code: "flatrate",
+            method_code: "flatrate",
+          },
+        });
+
+        saveBilling({
+          billingDetails: {
+            ...shippingDetails,
+            customerAddressId: null,
+            sameAsShipping: false,
+          },
+        });
+
+        localStorage.setItem(
+          "vsf-checkout",
+          JSON.stringify({
+            "user-account": {
+              firstname: "Vanessa",
+              lastname: "Lombardi",
+              email: "vanessa@lombardi.com",
+              is_subscribed: false,
+            },
+            billing: {
+              billingDetails: {
+                ...shippingDetails,
+                customerAddressId: null,
+                sameAsShipping: true,
+              },
+            },
+          })
+        );
+      }
+    });
     const route = useRoute();
     const {
-      isCartSidebarOpen, isWishlistSidebarOpen, isLoginModalOpen, toggleLoginModal,
+      isCartSidebarOpen,
+      isWishlistSidebarOpen,
+      isLoginModalOpen,
+      toggleLoginModal,
     } = useUiState();
 
     return {
@@ -63,7 +157,7 @@ export default defineComponent({
     };
   },
   head: {
-    link: [{ rel: 'stylesheet', href: '/_nuxt/fonts.css' }],
+    link: [{ rel: "stylesheet", href: "/_nuxt/fonts.css" }],
   },
 });
 </script>

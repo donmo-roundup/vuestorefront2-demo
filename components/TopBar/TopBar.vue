@@ -1,8 +1,5 @@
 <template>
   <div>
-    <div class="donmo-header">
-      <a href="https://donmo.org" target="_blank">Donmo Vue Storefront Demo</a>
-    </div>
     <SfTopBar class="topbar">
       <template #left>
         <SfButton class="sf-button--text">
@@ -47,14 +44,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.donmo-header {
-  background-color: #f6c728;
-  padding: 5px;
-}
-.donmo-header a {
-  color: #005cb3;
-  font-weight: bold;
-}
+
 .topbar {
   position: relative;
   z-index: 2;

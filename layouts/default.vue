@@ -7,6 +7,9 @@
     <LazyHydrate when-visible>
       <Notification />
     </LazyHydrate>
+    <div class="donmo-header">
+      <a href="https://donmo.org" target="_blank">Donmo Vue Storefront Demo</a>
+    </div>
     <TopBar class="desktop-only" />
     <AppHeader />
     <div id="layout">
@@ -164,6 +167,15 @@ export default defineComponent({
 
 <style lang="scss">
 @import "~@storefront-ui/vue/styles";
+
+.donmo-header {
+  background-color: #f6c728;
+  padding: 5px;
+}
+.donmo-header a {
+  color: #005cb3;
+  font-weight: bold;
+}
 
 #layout {
   box-sizing: border-box;

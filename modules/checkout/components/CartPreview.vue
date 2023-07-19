@@ -45,7 +45,7 @@
       />
     </div>
     <CouponCode class="highlighted" />
-    <div id="donmo-roundup"></div>
+    <div id="donmo-roundup-cart"></div>
 
     <div class="highlighted">
       <SfCharacteristic
@@ -124,6 +124,7 @@ export default defineComponent({
     } = useContext();
 
     onMounted(() => {
+      document.getElementById("donmo-roundup-cart").id = "donmo-roundup";
       if (screen.width >= 1024) {
         load().then(() => {
           const donmo = (window as any).DonmoRoundup({
@@ -218,10 +219,6 @@ export default defineComponent({
 #donmo-roundup {
   margin-top: 5px;
   margin-bottom: 15px;
-
-  @media (max-width: 1023px) {
-    display: none;
-  }
 }
 .highlighted {
   box-sizing: border-box;

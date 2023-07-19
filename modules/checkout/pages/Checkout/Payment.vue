@@ -154,7 +154,7 @@
         </div>
       </div>
     </div>
-    <div id="donmo-roundup"></div>
+    <div id="donmo-roundup-payment"></div>
   </div>
 </template>
 
@@ -262,6 +262,7 @@ export default defineComponent({
 
     onMounted(() => {
       if (screen.width < 1024) {
+        document.getElementById("donmo-roundup-payment").id = "donmo-roundup";
         load().then(() => {
           const donmo = (window as any).DonmoRoundup({
             publicKey: process.env.DONMO_PUBLIC_KEY,
@@ -362,10 +363,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 #donmo-roundup {
   margin-top: 20px;
-
-  @media (min-width: 1024px) {
-    display: none;
-  }
 }
 .title {
   margin: var(--spacer-xl) 0 var(--spacer-base) 0;

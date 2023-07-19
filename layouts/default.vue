@@ -104,6 +104,20 @@ export default defineComponent({
 
         await addItem({ product, quantity: 1 });
 
+        // add acount data
+        localStorage.setItem(
+          "vsf-checkout",
+          JSON.stringify({
+            "user-account": {
+              firstname: "Vanessa",
+              lastname: "Lombardi",
+              email: "vanessa@lombardi.com",
+              is_subscribed: false,
+            },
+          })
+        );
+
+        // add shipping data
         await saveShipping({
           shippingDetails,
         });
@@ -122,25 +136,6 @@ export default defineComponent({
             sameAsShipping: false,
           },
         });
-
-        localStorage.setItem(
-          "vsf-checkout",
-          JSON.stringify({
-            "user-account": {
-              firstname: "Vanessa",
-              lastname: "Lombardi",
-              email: "vanessa@lombardi.com",
-              is_subscribed: false,
-            },
-            billing: {
-              billingDetails: {
-                ...shippingDetails,
-                customerAddressId: null,
-                sameAsShipping: true,
-              },
-            },
-          })
-        );
       }
     });
     const route = useRoute();

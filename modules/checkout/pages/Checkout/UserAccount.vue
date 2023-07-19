@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="user-account-content">
     <ValidationObserver v-slot="{ handleSubmit, reset, validate }">
       <SfHeading
         v-e2e="'user-account-heading'"
@@ -320,6 +320,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.user-account-content {
+  @include for-mobile {
+    padding: 30px 0;
+  }
+}
 .form {
   &__select {
     display: flex;

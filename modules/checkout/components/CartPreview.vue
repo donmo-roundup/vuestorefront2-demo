@@ -214,7 +214,8 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 #donmo-roundup {
-  margin-bottom: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
 }
 .highlighted {
   box-sizing: border-box;

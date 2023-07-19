@@ -177,7 +177,6 @@ import {
   useRouter,
   useContext,
   onMounted,
-  watch,
 } from "@nuxtjs/composition-api";
 
 import cartGetters from "~/modules/checkout/getters/cartGetters";
@@ -192,8 +191,6 @@ import type {
   ConfigurableCartItem,
   CartItemInterface,
 } from "~/modules/GraphQL/types";
-
-import { useApi } from "~/composables/useApi";
 
 export default defineComponent({
   name: "ReviewOrderAndPayment",
@@ -222,11 +219,6 @@ export default defineComponent({
       product.configurable_options || [];
     const getBundles = (product: BundleCartItem) =>
       product.bundle_options?.map((b) => b.values).flat() || [];
-
-    const { mutate } = useApi();
-    const {
-      app: { i18n },
-    } = useContext();
 
     onMounted(async () => {
       const validStep = await isPreviousStepValid("billing");
@@ -262,64 +254,6 @@ export default defineComponent({
     const getRowTotal = (product: CartItemInterface) =>
       cartGetters.getItemPrice(product).regular -
       cartGetters.getItemPrice(product).special;
-
-    onMounted(() => {
-      load().then(() => {
-        const donmo = (window as any).DonmoRoundup({
-          publicKey: process.env.DONMO_PUBLIC_KEY,
-          isBackendBased: true,
-          language: i18n.locale,
-          orderId: cart.value.id,
-          addDonationAction: async ({ donationAmount }) => {
-            const ADD_DONATION_MUTATION = `
-              mutation ADD_DONATION_MUTATION($donationAmount: Float!, $cartId: String!) {
-                addDonationToQuote(donationAmount: $donationAmount, cartId: $cartId){
-                  message
-                }
-              }
-            `;
-
-            await mutate(ADD_DONATION_MUTATION, {
-              donationAmount,
-              cartId: cart.value.id,
-            });
-
-            // refresh cart
-            load();
-          },
-          removeDonationAction: async () => {
-            const REMOVE_DONATION_MUTATION = `
-              mutation REMOVE_DONATION_MUTATION($cartId: String!) {
-                removeDonationFromQuote(cartId: $cartId) {
-                  message
-                }
-              }
-            `;
-
-            await mutate(REMOVE_DONATION_MUTATION, { cartId: cart.value.id });
-
-            // refresh cart
-            load();
-          },
-          getExistingDonation: () => {
-            return cart.value?.prices?.["donmo_donation"]?.value;
-          },
-          getGrandTotal: () => cartGetters.getTotals(cart.value).total,
-        });
-
-        donmo.build();
-
-        watch(
-          () => cartGetters.getTotals(cart.value).total,
-          () => {
-            load().then(() => {
-              donmo.refresh();
-            });
-          }
-        );
-      });
-    });
-
     return {
       cart,
       cartGetters,
@@ -342,19 +276,6 @@ export default defineComponent({
       getMagentoImage,
       imageSizes,
       getRowTotal,
-    };
-  },
-
-  head() {
-    return {
-      title: "Donmo Roundup", // Other meta information
-      script: [
-        {
-          hid: "donmo",
-          src: "https://static.donmo.org/integration.js",
-          defer: true,
-        },
-      ],
     };
   },
 });
@@ -500,9 +421,5 @@ export default defineComponent({
   &__label {
     font-weight: var(--font-weight--normal);
   }
-}
-
-#donmo-roundup {
-  margin-top: 50px;
 }
 </style>

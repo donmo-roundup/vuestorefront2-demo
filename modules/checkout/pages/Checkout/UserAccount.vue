@@ -322,7 +322,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .user-account-content {
   @include for-mobile {
-    padding: 30px 0;
+    padding: 60px 0;
   }
 }
 .form {

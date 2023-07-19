@@ -92,7 +92,7 @@
           class="form__element"
         />
       </div>
-      <SfCheckbox
+      <!-- <SfCheckbox
         v-if="!isAuthenticated"
         v-model="createUserAccount"
         v-e2e="'create-account'"
@@ -109,7 +109,7 @@
         name="loginUserAccount"
         class="form__element"
         :disabled="createUserAccount"
-      />
+      /> -->
       <recaptcha v-if="isRecaptchaEnabled" />
       <div class="form">
         <div class="form__action">

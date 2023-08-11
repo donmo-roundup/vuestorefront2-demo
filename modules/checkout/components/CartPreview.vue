@@ -45,7 +45,7 @@
       />
     </div>
     <CouponCode class="highlighted" />
-    <div id="donmo-roundup-cart"></div>
+    <DonmoRoundup v-if="showDonmoRoundup" :public-key="donmoPublicKey" />
 
     <div class="highlighted">
       <SfCharacteristic
@@ -61,20 +61,13 @@
 </template>
 <script lang="ts">
 import { SfHeading, SfProperty, SfCharacteristic } from "@storefront-ui/vue";
-import {
-  computed,
-  ref,
-  defineComponent,
-  onMounted,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api";
+import { computed, ref, defineComponent } from "@nuxtjs/composition-api";
 import cartGetters from "~/modules/checkout/getters/cartGetters";
 import useCart from "~/modules/checkout/composables/useCart";
 import getShippingMethodPrice from "~/helpers/checkout/getShippingMethodPrice";
 import CouponCode from "../../../components/CouponCode.vue";
 
-import { useApi } from "~/composables/useApi";
+import DonmoRoundup from "~/modules/checkout/components/DonmoRoundup.vue";
 
 const CHARACTERISTICS = [
   {
@@ -101,6 +94,7 @@ export default defineComponent({
     SfProperty,
     SfCharacteristic,
     CouponCode,
+    DonmoRoundup,
   },
   setup() {
     const { cart, removeItem, updateItemQty, load } = useCart();
@@ -110,82 +104,20 @@ export default defineComponent({
     const totalItems = computed(() => cartGetters.getTotalItems(cart.value));
     const totals = computed(() => cartGetters.getTotals(cart.value));
     const discount = computed(() => -cartGetters.getDiscountAmount(cart.value));
-    const donmoDonation = computed(
-      () => cart.value?.prices?.["donmo_donation"]?.value
-    );
+
     const hasDiscounts = computed(() => Math.abs(discount.value) > 0);
     const selectedShippingMethod = computed(() =>
       cartGetters.getSelectedShippingMethod(cart.value)
     );
 
-    const { mutate } = useApi();
-    const {
-      app: { i18n },
-    } = useContext();
-
-    onMounted(() => {
-      document.getElementById("donmo-roundup-cart").id = "donmo-roundup";
-      if (screen.width >= 1024) {
-        load().then(() => {
-          const donmo = (window as any).DonmoRoundup({
-            publicKey: process.env.DONMO_PUBLIC_KEY,
-            isBackendBased: true,
-            language: i18n.locale,
-            orderId: cart.value.id,
-            addDonationAction: async ({ donationAmount }) => {
-              const ADD_DONATION_MUTATION = `
-              mutation ADD_DONATION_MUTATION($donationAmount: Float!, $cartId: String!) {
-                addDonationToQuote(donationAmount: $donationAmount, cartId: $cartId){
-                  message
-                }
-              }
-            `;
-
-              await mutate(ADD_DONATION_MUTATION, {
-                donationAmount,
-                cartId: cart.value.id,
-              });
-
-              // refresh cart
-              load();
-            },
-            removeDonationAction: async () => {
-              const REMOVE_DONATION_MUTATION = `
-              mutation REMOVE_DONATION_MUTATION($cartId: String!) {
-                removeDonationFromQuote(cartId: $cartId) {
-                  message
-                }
-              }
-            `;
-
-              await mutate(REMOVE_DONATION_MUTATION, { cartId: cart.value.id });
-
-              // refresh cart
-              load();
-            },
-            getExistingDonation: () => {
-              return cart.value?.prices?.["donmo_donation"]?.value;
-            },
-            getGrandTotal: () => cartGetters.getTotals(cart.value).total,
-          });
-
-          donmo.build();
-
-          watch(
-            () => cartGetters.getTotals(cart.value).total,
-            () => {
-              load().then(() => {
-                donmo.refresh();
-              });
-            }
-          );
-        });
-      }
-    });
+    const donmoDonation = computed(
+      () => cart.value?.prices?.["donmo_donation"]?.value
+    );
+    const showDonmoRoundup = computed(() => screen.width >= 1024);
+    const donmoPublicKey = computed(() => process.env.DONMO_PUBLIC_KEY);
     return {
       cart,
       discount,
-      donmoDonation,
       hasDiscounts,
       totalItems,
       listIsHidden,
@@ -197,29 +129,16 @@ export default defineComponent({
       getShippingMethodPrice,
       characteristics: CHARACTERISTICS,
       selectedShippingMethod,
-    };
-  },
 
-  head() {
-    return {
-      title: "Donmo Roundup", // Other meta information
-      script: [
-        {
-          hid: "donmo",
-          src: "https://static.donmo.org/integration.js",
-          defer: true,
-        },
-      ],
+      showDonmoRoundup,
+      donmoPublicKey,
+      donmoDonation,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
-#donmo-roundup {
-  margin-top: 5px;
-  margin-bottom: 15px;
-}
 .highlighted {
   box-sizing: border-box;
   width: 100%;

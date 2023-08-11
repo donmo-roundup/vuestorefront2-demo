@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 import customCartQuery from "./customQueries/cart";
-
+import customCustomerCartQuery from "./customQueries/customerCart";
 /* eslint-disable unicorn/prefer-module */
 const cookieNames = {
   currencyCookieName: "vsf-currency",
@@ -68,6 +68,10 @@ module.exports = {
         cart: (context) => ({
           ...context,
           query: customCartQuery,
+        }),
+        customerCart: (context) => ({
+          ...context,
+          query: customCustomerCartQuery,
         }),
       },
     },

@@ -154,7 +154,9 @@
         </div>
       </div>
     </div>
-    <DonmoRoundup v-if="showDonmoRoundup" :public-key="donmoPublicKey" />
+    <div id="donmo-payment-wrapper">
+      <DonmoRoundup :public-key="donmoPublicKey" />
+    </div>
   </div>
 </template>
 
@@ -192,7 +194,7 @@ import type {
   CartItemInterface,
 } from "~/modules/GraphQL/types";
 
-import DonmoRoundup from "~/modules/checkout/components/DonmoRoundup.vue";
+import DonmoRoundup from "~/components/DonmoRoundup.vue";
 
 export default defineComponent({
   name: "ReviewOrderAndPayment",
@@ -258,7 +260,6 @@ export default defineComponent({
       cartGetters.getItemPrice(product).regular -
       cartGetters.getItemPrice(product).special;
 
-    const showDonmoRoundup = computed(() => screen.width < 1024);
     const donmoPublicKey = computed(() => process.env.DONMO_PUBLIC_KEY);
 
     return {
@@ -284,7 +285,6 @@ export default defineComponent({
       imageSizes,
       getRowTotal,
 
-      showDonmoRoundup,
       donmoPublicKey,
     };
   },
@@ -292,6 +292,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+#donmo-payment-wrapper {
+  margin-top: 15px;
+
+  @include for-desktop {
+    display: none;
+  }
+}
 .title {
   margin: var(--spacer-xl) 0 var(--spacer-base) 0;
 }

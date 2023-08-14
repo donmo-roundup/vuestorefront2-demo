@@ -1,5 +1,5 @@
 <template>
-  <div id="donmo-roundup"></div>
+  <div :id="elementId"></div>
 </template>
 
 <script lang="ts">
@@ -8,6 +8,7 @@ import {
   onMounted,
   useContext,
   watch,
+  ref,
 } from "@nuxtjs/composition-api";
 
 import { useApi } from "~/composables/useApi";
@@ -21,6 +22,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
+
     integrationTitle: {
       type: String,
     },
@@ -98,10 +100,15 @@ export default defineComponent({
 
     const getGrandTotal = () => cartGetters.getTotals(cart.value).total;
 
+    const elementId = ref(null);
+
     onMounted(() => {
+      elementId.value = "donmo-roundup-" + Math.floor(Math.random() * 1000);
+
       load().then(() => {
         const donmo = (window as any).DonmoRoundup({
           publicKey: props.publicKey,
+          elementId: elementId.value,
           isBackendBased: props.isBackendBased,
           language: props.language || i18n.locale,
           orderId: cart.value.id,
@@ -129,6 +136,10 @@ export default defineComponent({
         );
       });
     });
+
+    return {
+      elementId,
+    };
   },
 
   head() {
@@ -145,10 +156,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-#donmo-roundup {
-  margin-top: 5px;
-  margin-bottom: 15px;
-}
-</style>

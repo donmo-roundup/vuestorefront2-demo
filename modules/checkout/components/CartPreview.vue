@@ -45,7 +45,10 @@
       />
     </div>
     <CouponCode class="highlighted" />
-    <DonmoRoundup v-if="showDonmoRoundup" :public-key="donmoPublicKey" />
+
+    <div id="donmo-cart-preview-wrapper">
+      <DonmoRoundup :public-key="donmoPublicKey" />
+    </div>
 
     <div class="highlighted">
       <SfCharacteristic
@@ -67,7 +70,7 @@ import useCart from "~/modules/checkout/composables/useCart";
 import getShippingMethodPrice from "~/helpers/checkout/getShippingMethodPrice";
 import CouponCode from "../../../components/CouponCode.vue";
 
-import DonmoRoundup from "~/modules/checkout/components/DonmoRoundup.vue";
+import DonmoRoundup from "~/components/DonmoRoundup.vue";
 
 const CHARACTERISTICS = [
   {
@@ -113,7 +116,7 @@ export default defineComponent({
     const donmoDonation = computed(
       () => cart.value?.prices?.["donmo_donation"]?.value
     );
-    const showDonmoRoundup = computed(() => screen.width >= 1024);
+
     const donmoPublicKey = computed(() => process.env.DONMO_PUBLIC_KEY);
     return {
       cart,
@@ -130,7 +133,6 @@ export default defineComponent({
       characteristics: CHARACTERISTICS,
       selectedShippingMethod,
 
-      showDonmoRoundup,
       donmoPublicKey,
       donmoDonation,
     };
@@ -139,6 +141,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+#donmo-cart-preview-wrapper {
+  @include for-mobile {
+    display: none;
+  }
+}
 .highlighted {
   box-sizing: border-box;
   width: 100%;

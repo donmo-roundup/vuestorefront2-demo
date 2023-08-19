@@ -8,7 +8,9 @@
       <Notification />
     </LazyHydrate>
     <div class="donmo-header">
-      <a href="https://donmo.org" target="_blank">Donmo Vue Storefront Demo</a>
+      <a href="https://donmo.org" target="_blank"
+        >Donmo Vue Storefront 2 Demo</a
+      >
     </div>
     <TopBar class="desktop-only" />
     <AppHeader />

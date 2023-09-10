@@ -38,6 +38,9 @@ export default defineComponent({
     language: {
       type: String,
     },
+    currency: {
+      type: String,
+    },
     isBackendBased: {
       type: Boolean,
       default: true,
@@ -46,9 +49,7 @@ export default defineComponent({
   setup(props) {
     const { mutate } = useApi();
     const { cart, load } = useCart();
-    const {
-      app: { i18n },
-    } = useContext();
+    const { app } = useContext();
 
     const addDonationAction = async ({ donationAmount }) => {
       const ADD_DONATION_MUTATION = `
@@ -110,7 +111,8 @@ export default defineComponent({
           publicKey: props.publicKey,
           elementId: elementId.value,
           isBackendBased: props.isBackendBased,
-          language: props.language || i18n.locale,
+          language: props.language || app.i18n.locale,
+          currency: app.$vsf.$magento.config.state.getCurrency(),
           orderId: cart.value.id,
           addDonationAction,
           removeDonationAction,

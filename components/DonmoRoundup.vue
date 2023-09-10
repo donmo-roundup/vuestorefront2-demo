@@ -38,9 +38,6 @@ export default defineComponent({
     language: {
       type: String,
     },
-    currency: {
-      type: String,
-    },
     isBackendBased: {
       type: Boolean,
       default: true,
